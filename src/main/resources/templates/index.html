@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('RayyanMart - Online Shopping')}"></head>
+<body>
+<header th:replace="~{fragments :: navbar}"></header>
+
+<main class="container">
+  <div th:replace="~{fragments :: banner}"></div>
+
+  <section class="hero" style="text-align:center;padding:70px 20px;">
+    <h1>Welcome to RayyanMart</h1>
+    <p style="font-size:1.15rem;color:#6b7280;">Your one-stop online shopping destination.</p>
+    <p>
+      <a class="btn btn-primary" th:href="@{/products}">Shop Now</a>
+      <a class="btn btn-outline" th:href="@{/register}" th:if="${navUser == null}">Create an Account</a>
+    </p>
+  </section>
+
+  <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px; margin-top:20px;">
+    <div class="card" style="text-align:center;padding:28px;">
+      <h3 style="color:#fbbf24;">Huge Selection</h3>
+      <p style="color:#6b7280;margin:0;">Browse products across many categories.</p>
+    </div>
+    <div class="card" style="text-align:center;padding:28px;">
+      <h3 style="color:#fbbf24;">Secure Checkout</h3>
+      <p style="color:#6b7280;margin:0;">Fast and easy ordering for customers.</p>
+    </div>
+    <div class="card" style="text-align:center;padding:28px;">
+      <h3 style="color:#fbbf24;">Seller &amp; Admin Tools</h3>
+      <p style="color:#6b7280;margin:0;">Manage products, stock and orders.</p>
+    </div>
+  </section>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+<div th:replace="~{fragments :: chatWidget}"></div>
+</body>
+</html>

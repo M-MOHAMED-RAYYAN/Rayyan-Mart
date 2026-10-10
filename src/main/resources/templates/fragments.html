@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${title} ?: 'RayyanMart'">RayyanMart</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="icon" href="data:,">
+</head>
+
+<body>
+
+<header class="navbar" th:fragment="navbar">
+  <div class="container nav-inner">
+    <a th:href="@{/}" class="brand">RayyanMart</a>
+    <nav class="nav-links">
+      <a th:href="@{/}">Home</a>
+      <a th:href="@{/products}">Products</a>
+      <a th:href="@{/cart}" th:if="${navUser != null}">Cart<span class="cart-badge" th:if="${cartCount > 0}" th:text="${cartCount}"></span></a>
+      <a th:href="@{/orders}" th:if="${navUser != null}">Orders</a>
+      <a th:href="@{/seller}" th:if="${navUser != null and navUser.role() == 'SELLER'}">Seller</a>
+      <a th:href="@{/admin}" th:if="${navUser != null and navUser.role() == 'ADMIN'}">Admin</a>
+    </nav>
+    <div class="nav-auth">
+      <span class="nav-user" th:if="${navUser != null}" th:text="${navUser.name()}"></span>
+      <a th:if="${navUser == null}" th:href="@{/login}">Login</a>
+      <a th:if="${navUser == null}" class="btn btn-primary btn-sm" th:href="@{/register}">Register</a>
+      <form th:if="${navUser != null}" method="post" th:action="@{/logout}" style="display:inline;margin:0;">
+        <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+      </form>
+    </div>
+  </div>
+</header>
+
+<div th:fragment="banner">
+  <div class="message success" style="display:block" th:if="${msg}" th:text="${msg}"></div>
+  <div class="message error" style="display:block" th:if="${error}" th:text="${error}"></div>
+</div>
+
+<footer th:fragment="footer" style="background:#1f2937;color:#9ca3af;padding:24px 0;margin-top:48px;">
+  <div class="container">RayyanMart &copy; 2026 &middot; Online Shopping System</div>
+</footer>
+
+<!-- RayyanMart shopping assistant widget. Visible to logged-in users only.
+     The chat.js script runs only when the button is actually rendered. -->
+<div th:fragment="chatWidget">
+  <div th:if="${navUser != null}">
+    <div id="rm-chat-root">
+    <button id="rm-chat-toggle" type="button" class="chat-toggle" aria-label="Open the RayyanMart assistant" aria-expanded="false" aria-haspopup="dialog" title="Help &amp; Support">
+      <span id="rm-chat-toggle-icon" class="chat-toggle-icon">?</span>
+    </button>
+    <div id="rm-chat-panel" class="chat-panel" hidden>
+      <div class="chat-header">
+        <strong>RayyanMart Assistant</strong>
+        <button type="button" id="rm-chat-close" class="chat-close" aria-label="Close chat">&#10005;</button>
+      </div>
+      <div id="rm-chat-messages" class="chat-messages">
+        <div class="chat-msg bot">Hi! I&#39;m the RayyanMart assistant. Ask me about products, prices, stock, orders, delivery or returns.</div>
+        <p id="rm-chat-typing" class="chat-typing" hidden>Assistant is typing&hellip;</p>
+      </div>
+      <div class="chat-chips" id="rm-chat-chips">
+        <button type="button" class="chat-chip" data-q="Show available products">Products</button>
+        <button type="button" class="chat-chip" data-q="How do I place an order?">How to order</button>
+        <button type="button" class="chat-chip" data-q="What is the delivery time?">Delivery</button>
+        <button type="button" class="chat-chip" data-q="What is the return policy?">Returns</button>
+      </div>
+      <form id="rm-chat-form" class="chat-input">
+        <input id="rm-chat-text" type="text" maxlength="500" placeholder="Ask about products..." autocomplete="off">
+        <button type="submit" class="btn btn-primary btn-sm">Send</button>
+      </form>
+    </div>
+    <script th:src="@{/js/chat.js}"></script>
+  </div>
+</div>
+
+</body>
+</html>

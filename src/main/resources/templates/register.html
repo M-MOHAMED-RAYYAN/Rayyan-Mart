@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Register - RayyanMart')}"></head>
+<body>
+<header th:replace="~{fragments :: navbar}"></header>
+
+<main class="container" style="max-width:420px;">
+  <div th:replace="~{fragments :: banner}"></div>
+
+  <div class="auth-card card" style="margin-top:28px;padding:28px;">
+    <h2 style="margin-top:0;">Create an Account</h2>
+    <form method="post" th:action="@{/register}">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" th:value="${name}" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" th:value="${email}" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" minlength="6" required>
+      </div>
+      <div class="form-group">
+        <label for="password2">Confirm Password</label>
+        <input type="password" id="password2" name="password2" minlength="6" required>
+      </div>
+      <div class="form-group">
+        <label for="role">I want to</label>
+        <select id="role" name="role">
+          <option value="CUSTOMER" th:selected="${role == null or role == 'CUSTOMER'}">Shop as a Customer</option>
+          <option value="SELLER" th:selected="${role == 'SELLER'}">Sell as a Seller</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" style="width:100%;margin-top:8px;">Register</button>
+    </form>
+    <p style="margin:16px 0 0;color:#6b7280;">
+      Already have an account? <a th:href="@{/login}">Login</a>
+    </p>
+  </div>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+<div th:replace="~{fragments :: chatWidget}"></div>
+</body>
+</html>

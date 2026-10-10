@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Login - RayyanMart')}"></head>
+<body>
+<header th:replace="~{fragments :: navbar}"></header>
+
+<main class="container" style="max-width:420px;">
+  <div th:replace="~{fragments :: banner}"></div>
+
+  <div class="auth-card card" style="margin-top:28px;padding:28px;">
+    <h2 style="margin-top:0;">Login</h2>
+    <form method="post" th:action="@{/login}">
+      <input type="hidden" name="redirect" th:value="${redirect}">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" style="width:100%;margin-top:8px;">Login</button>
+    </form>
+    <p style="margin:16px 0 0;color:#6b7280;">
+      Don't have an account? <a th:href="@{/register}">Register</a>
+    </p>
+  </div>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+<div th:replace="~{fragments :: chatWidget}"></div>
+</body>
+</html>
