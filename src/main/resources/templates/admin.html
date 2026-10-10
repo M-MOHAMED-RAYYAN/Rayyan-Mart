@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Admin Dashboard - RayyanMart')}"></head>
+<body>
+<header th:replace="~{fragments :: navbar}"></header>
+
+<main class="container">
+  <div th:replace="~{fragments :: banner}"></div>
+
+  <h1 style="margin:24px 0 0;">Admin Dashboard</h1>
+
+  <section class="stats-grid">
+    <div class="stat-card">
+      <h3 style="margin:0;" th:text="${stats.totalUsers}"></h3>
+      <p class="muted" style="margin:4px 0 0;">Total Users</p>
+    </div>
+    <div class="stat-card">
+      <h3 style="margin:0;" th:text="${stats.totalCustomers}"></h3>
+      <p class="muted" style="margin:4px 0 0;">Customers</p>
+    </div>
+    <div class="stat-card">
+      <h3 style="margin:0;" th:text="${stats.totalSellers}"></h3>
+      <p class="muted" style="margin:4px 0 0;">Sellers</p>
+    </div>
+    <div class="stat-card">
+      <h3 style="margin:0;" th:text="${stats.totalProducts}"></h3>
+      <p class="muted" style="margin:4px 0 0;">Products</p>
+    </div>
+    <div class="stat-card">
+      <h3 style="margin:0;" th:text="${stats.totalOrders}"></h3>
+      <p class="muted" style="margin:4px 0 0;">Orders</p>
+    </div>
+    <div class="stat-card">
+      <h3 style="margin:0;" th:text="${ui.money(stats.totalRevenue)}"></h3>
+      <p class="muted" style="margin:4px 0 0;">Total Revenue</p>
+    </div>
+  </section>
+
+  <h2 style="margin-top:36px;" th:text="${editProduct != null ? 'Update Product' : 'Add New Product'}"></h2>
+  <p class="muted" th:if="${editProduct != null}">
+    Editing: <strong th:text="${editProduct.name()}"></strong>
+    &nbsp;<a class="btn btn-outline btn-sm" th:href="@{/admin}">Cancel edit</a>
+  </p>
+
+  <form class="card" style="padding:20px;" method="post"
+        th:action="@{${editProduct != null ? '/admin/products/' + editProduct.id() + '/update' : '/admin/products'}}">
+    <div class="form-group">
+      <label for="aname">Product Name</label>
+      <input type="text" id="aname" name="name" required
+             th:value="${editProduct != null ? editProduct.name() : ''}">
+    </div>
+    <div class="form-group">
+      <label for="adesc">Description</label>
+      <textarea id="adesc" name="description" rows="3"
+                th:text="${editProduct != null ? editProduct.description() : ''}"></textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0 20px;">
+      <div class="form-group">
+        <label for="aprice">Price ($)</label>
+        <input type="number" id="aprice" name="price" min="0" step="0.01" required
+               th:value="${editProduct != null ? editProduct.price() : ''}">
+      </div>
+      <div class="form-group">
+        <label for="aquantity">Quantity</label>
+        <input type="number" id="aquantity" name="quantity" min="0" required
+               th:value="${editProduct != null ? editProduct.quantity() : ''}">
+      </div>
+      <div class="form-group">
+        <label for="acategory">Category</label>
+        <input type="text" id="acategory" name="category" list="adminCategories"
+               th:value="${editProduct != null ? editProduct.category() : ''}">
+        <datalist id="adminCategories">
+          <option th:each="c : ${categories}" th:value="${c}"></option>
+        </datalist>
+      </div>
+      <div class="form-group">
+        <label for="aimage">Image URL</label>
+        <input type="text" id="aimage" name="imageUrl"
+               th:value="${editProduct != null ? editProduct.imageUrl() : ''}">
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:8px;margin-top:24px;">
+        <input type="checkbox" id="aavailable" name="available"
+               th:checked="${editProduct == null or editProduct.available()}">
+        <label for="aavailable" style="margin:0;">Available for sale</label>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary"
+            th:text="${editProduct != null ? 'Save Changes' : 'Create Product'}"></button>
+  </form>
+
+  <h2 style="margin-top:36px;">All Products</h2>
+  <form method="get" th:action="@{/admin}" class="toolbar">
+    <input type="text" name="search" th:value="${search}" placeholder="Search products...">
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Product</th>
+      <th>Category</th>
+      <th>Price</th>
+      <th>Stock</th>
+      <th>Seller</th>
+      <th style="width:250px;">Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="p : ${products}">
+      <td>
+        <div class="cart-product">
+          <img th:src="${ui.image(p.imageUrl())}" th:alt="${p.name()}">
+          <span th:text="${p.name()}"></span>
+        </div>
+      </td>
+      <td th:text="${p.category() == null ? '-' : p.category()}"></td>
+      <td th:text="${ui.money(p.price())}"></td>
+      <td th:text="${p.quantity()}"></td>
+      <td th:text="${p.sellerName() == null ? 'Admin' : p.sellerName()}"></td>
+      <td>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <a class="btn btn-outline btn-sm" th:href="@{/admin(edit=${p.id()})}">Edit</a>
+          <form method="post" th:action="@{/admin/products/{id}/delete(id=${p.id()})}" style="display:inline;margin:0;">
+            <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <p class="empty" th:if="${#lists.isEmpty(products)}">No products found.</p>
+
+  <h2 style="margin-top:36px;">Orders</h2>
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Order</th>
+      <th>Customer</th>
+      <th>Placed</th>
+      <th>Total</th>
+      <th>Status</th>
+      <th style="width:180px;">Update</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="o : ${orders}">
+      <td th:text="|#${o.id()}|"></td>
+      <td th:text="${o.customerName()}"></td>
+      <td th:text="${ui.dateTime(o.createdAt())}"></td>
+      <td th:text="${ui.money(o.totalAmount())}"></td>
+      <td>
+        <span class="badge" th:classappend="${' ' + ui.statusClass(o.status().name())}"
+              th:text="${ui.title(o.status().name())}"></span>
+      </td>
+      <td>
+        <form method="post" th:action="@{/admin/orders/{id}/status(id=${o.id()})}"
+              style="display:flex;gap:6px;margin:0;">
+          <select name="status" style="width:130px;">
+            <option th:each="s : ${T(com.shopping.system.model.OrderStatus).values()}"
+                    th:value="${s.name()}" th:text="${ui.title(s.name())}"
+                    th:selected="${o.status() == s}"></option>
+          </select>
+          <button class="btn btn-outline btn-sm" type="submit">Apply</button>
+        </form>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <p class="empty" th:if="${#lists.isEmpty(orders)}">No orders yet.</p>
+
+  <h2 style="margin-top:36px;">Users</h2>
+  <table class="table">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Joined</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="u : ${users}">
+      <td th:text="${u.id()}"></td>
+      <td th:text="${u.name()}"></td>
+      <td th:text="${u.email()}"></td>
+      <td>
+        <span class="badge" th:classappend="${' ' + ui.statusClass(u.role())}"
+              th:text="${ui.title(u.role())}"></span>
+      </td>
+      <td th:text="${ui.date(u.createdAt())}"></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2 style="margin-top:36px;">Reviews</h2>
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Product</th>
+      <th>User</th>
+      <th>Rating</th>
+      <th>Comment</th>
+      <th>Date</th>
+      <th style="width:110px;"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="r : ${reviews}"
+        th:with="pn=${productNames[r.productId()]}">
+      <td>
+        <a th:href="@{/products/{id}(id=${r.productId()})}"
+           th:text="${pn != null ? pn : 'Product #' + r.productId()}"></a>
+      </td>
+      <td th:text="${r.userName()}"></td>
+      <td th:utext="${ui.stars(r.rating())}"></td>
+      <td th:text="${r.comment() == null or r.comment().isBlank() ? '-' : r.comment()}"></td>
+      <td th:text="${ui.date(r.updatedAt() != null ? r.updatedAt() : r.createdAt())}"></td>
+      <td>
+        <form method="post" th:action="@{/admin/reviews/{id}/delete(id=${r.id()})}" style="margin:0;">
+          <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+        </form>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <p class="empty" th:if="${#lists.isEmpty(reviews)}">No reviews yet.</p>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+<div th:replace="~{fragments :: chatWidget}"></div>
+</body>
+</html>

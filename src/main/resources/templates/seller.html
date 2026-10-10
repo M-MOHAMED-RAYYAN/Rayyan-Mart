@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Seller Dashboard - RayyanMart')}"></head>
+<body>
+<header th:replace="~{fragments :: navbar}"></header>
+
+<main class="container">
+  <div th:replace="~{fragments :: banner}"></div>
+
+  <div class="card" style="padding:24px;text-align:center;" th:if="${accessDenied}">
+    <h2 style="margin-top:0;">Access Denied</h2>
+    <p th:text="${accessDeniedMsg}"></p>
+    <a class="btn btn-primary" th:href="@{/}">Back to Home</a>
+  </div>
+
+  <th:block th:unless="${accessDenied}">
+    <h1 style="margin:24px 0 0;">Seller Dashboard</h1>
+    <p class="muted" th:text="|Welcome, ${dashboard.sellerName()}|"></p>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <h3 style="margin:0;" th:text="${dashboard.totalProducts()}"></h3>
+        <p class="muted" style="margin:4px 0 0;">Total Products</p>
+      </div>
+      <div class="stat-card">
+        <h3 style="margin:0;" th:text="${dashboard.availableProducts()}"></h3>
+        <p class="muted" style="margin:4px 0 0;">Available</p>
+      </div>
+      <div class="stat-card">
+        <h3 style="margin:0;" th:text="${dashboard.outOfStockProducts()}"></h3>
+        <p class="muted" style="margin:4px 0 0;">Out of Stock</p>
+      </div>
+      <div class="stat-card">
+        <h3 style="margin:0;" th:text="${dashboard.totalStock()}"></h3>
+        <p class="muted" style="margin:4px 0 0;">Total Stock</p>
+      </div>
+    </section>
+
+    <h2 style="margin-top:36px;" th:text="${editProduct != null ? 'Update Product' : 'Add New Product'}"></h2>
+    <p class="muted" th:if="${editProduct != null}">
+      Editing: <strong th:text="${editProduct.name()}"></strong>
+      &nbsp;<a class="btn btn-outline btn-sm" th:href="@{/seller}">Cancel edit</a>
+    </p>
+
+    <form class="card" style="padding:20px;" method="post"
+          th:action="@{${editProduct != null ? '/seller/products/' + editProduct.id() + '/update' : '/seller/products'}}">
+      <div class="form-group">
+        <label for="pname">Product Name</label>
+        <input type="text" id="pname" name="name" required
+               th:value="${editProduct != null ? editProduct.name() : ''}">
+      </div>
+      <div class="form-group">
+        <label for="pdesc">Description</label>
+        <textarea id="pdesc" name="description" rows="3"
+                  th:text="${editProduct != null ? editProduct.description() : ''}"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0 20px;">
+        <div class="form-group">
+          <label for="pprice">Price ($)</label>
+          <input type="number" id="pprice" name="price" min="0" step="0.01" required
+                 th:value="${editProduct != null ? editProduct.price() : ''}">
+        </div>
+        <div class="form-group">
+          <label for="pquantity">Quantity</label>
+          <input type="number" id="pquantity" name="quantity" min="0" required
+                 th:value="${editProduct != null ? editProduct.quantity() : ''}">
+        </div>
+        <div class="form-group">
+          <label for="pcategory">Category</label>
+          <input type="text" id="pcategory" name="category" list="sellerCategories"
+                 th:value="${editProduct != null ? editProduct.category() : ''}">
+          <datalist id="sellerCategories">
+            <option th:each="c : ${categories}" th:value="${c}"></option>
+          </datalist>
+        </div>
+        <div class="form-group">
+          <label for="pimage">Image URL</label>
+          <input type="text" id="pimage" name="imageUrl"
+                 th:value="${editProduct != null ? editProduct.imageUrl() : ''}">
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:8px;margin-top:24px;">
+          <input type="checkbox" id="pavailable" name="available"
+                 th:checked="${editProduct == null or editProduct.available()}">
+          <label for="pavailable" style="margin:0;">Available for sale</label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary"
+              th:text="${editProduct != null ? 'Save Changes' : 'Create Product'}"></button>
+    </form>
+
+    <h2 style="margin-top:36px;">My Products</h2>
+    <form method="get" th:action="@{/seller}" class="toolbar">
+      <input type="text" name="search" th:value="${search}" placeholder="Search my products...">
+      <select name="available" aria-label="Filter by availability">
+        <option value="">All</option>
+        <option value="true" th:selected="${available == 'true'}">In Stock</option>
+        <option value="false" th:selected="${available == 'false'}">Out of Stock</option>
+      </select>
+      <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Product</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Availability</th>
+        <th style="width:300px;">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="p : ${products}">
+        <td>
+          <div class="cart-product">
+            <img th:src="${ui.image(p.imageUrl())}" th:alt="${p.name()}">
+            <span th:text="${p.name()}"></span>
+          </div>
+        </td>
+        <td th:text="${p.category() == null ? '-' : p.category()}"></td>
+        <td th:text="${ui.money(p.price())}"></td>
+        <td th:text="${p.quantity()}"></td>
+        <td>
+          <span class="stock" th:classappend="${(p.available() and p.quantity() > 0) ? 'in-stock' : 'out-of-stock'}"
+                th:text="${(p.available() and p.quantity() > 0) ? 'Available' : 'Out of Stock'}"></span>
+        </td>
+        <td>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <a class="btn btn-outline btn-sm" th:href="@{/seller(edit=${p.id()})}">Edit</a>
+            <form method="post" th:action="@{/seller/products/{id}/stock(id=${p.id()})}"
+                  style="display:inline-flex;gap:6px;margin:0;">
+              <input type="number" name="quantity" min="0" th:value="${p.quantity()}" style="width:80px;">
+              <button class="btn btn-outline btn-sm" type="submit">Set Stock</button>
+            </form>
+            <form method="post" th:action="@{/seller/products/{id}/delete(id=${p.id()})}"
+                  style="display:inline;margin:0;">
+              <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <p class="empty" th:if="${#lists.isEmpty(products)}">No products match your filters.</p>
+
+    <h2 style="margin-top:36px;">Incoming Orders</h2>
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Order</th>
+        <th>Placed</th>
+        <th>Status</th>
+        <th>Items</th>
+        <th>Total</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="so : ${orders}">
+        <td th:text="|#${so.orderId()}|"></td>
+        <td th:text="${ui.dateTime(so.createdAt())}"></td>
+        <td>
+          <span class="badge" th:classappend="${' ' + ui.statusClass(so.status().name())}"
+                th:text="${ui.title(so.status().name())}"></span>
+        </td>
+        <td>
+          <ul style="margin:0;padding-left:16px;">
+            <li th:each="si : ${so.items()}" th:text="|${si.productName()} &times; ${si.quantity()}|"></li>
+          </ul>
+        </td>
+        <td th:text="${ui.money(so.totalAmount())}"></td>
+      </tr>
+      </tbody>
+    </table>
+    <p class="empty" th:if="${#lists.isEmpty(orders)}">No orders yet.</p>
+  </th:block>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+<div th:replace="~{fragments :: chatWidget}"></div>
+</body>
+</html>

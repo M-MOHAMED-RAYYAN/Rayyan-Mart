@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('My Orders - RayyanMart')}"></head>
+<body>
+<header th:replace="~{fragments :: navbar}"></header>
+
+<main class="container">
+  <div th:replace="~{fragments :: banner}"></div>
+
+  <h1 style="margin:24px 0 0;">My Orders</h1>
+
+  <p class="empty" th:if="${#lists.isEmpty(orders)}">
+    You haven't placed any orders yet. <a th:href="@{/products}">Start shopping</a>.
+  </p>
+
+  <div class="card order-card" th:each="o : ${orders}">
+    <div class="order-head" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+      <strong th:text="|Order #${o.id()}|"></strong>
+      <span class="badge" th:classappend="${' ' + ui.statusClass(o.status().name())}"
+            th:text="${ui.title(o.status().name())}"></span>
+    </div>
+    <div class="order-meta muted" style="margin:6px 0 10px;">
+      <span th:text="|Placed: ${ui.dateTime(o.createdAt())}|"></span>
+      <span>&middot; Items: <span th:text="${o.items().size()}"></span></span>
+      <span>&middot; Total: <span th:text="${ui.money(o.totalAmount())}"></span></span>
+      <span>&middot; Payment: <span
+            th:text="${o.paymentMethod() == null ? 'Cash on Delivery' : ui.title(o.paymentMethod().name())}"></span></span>
+    </div>
+    <ul class="order-items" style="margin:0;padding-left:20px;">
+      <li th:each="i : ${o.items()}"
+          th:text="|${i.productName()} &times; ${i.quantity()} - ${ui.money(i.subtotal())}|"></li>
+    </ul>
+  </div>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+<div th:replace="~{fragments :: chatWidget}"></div>
+</body>
+</html>
