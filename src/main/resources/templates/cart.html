@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Cart - RayyanMart')}"></head>
+<body>
+<header th:replace="~{fragments :: navbar}"></header>
+
+<main class="container">
+  <div th:replace="~{fragments :: banner}"></div>
+
+  <h1 style="margin:24px 0 0;">Your Cart</h1>
+
+  <p class="empty" th:if="${#lists.isEmpty(cart.items())}">
+    Your cart is empty. <a th:href="@{/products}">Browse products</a> to get started.
+  </p>
+
+  <th:block th:if="${!#lists.isEmpty(cart.items())}">
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th style="width:220px;">Quantity</th>
+        <th>Subtotal</th>
+        <th style="width:110px;"></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="item : ${cart.items()}">
+        <td>
+          <div class="cart-product">
+            <img th:src="${ui.image(item.imageUrl())}" th:alt="${item.productName()}">
+            <a th:href="@{/products/{id}(id=${item.productId()})}" th:text="${item.productName()}"></a>
+          </div>
+        </td>
+        <td th:text="${ui.money(item.price())}"></td>
+        <td>
+          <form method="post" th:action="@{/cart/item/{id}/update(id=${item.id()})}"
+                style="display:flex;gap:8px;align-items:center;">
+            <input type="number" name="quantity" min="1" th:value="${item.quantity()}" style="width:70px;">
+            <button class="btn btn-outline btn-sm" type="submit">Update</button>
+          </form>
+        </td>
+        <td th:text="${ui.money(item.subtotal())}"></td>
+        <td>
+          <form method="post" th:action="@{/cart/item/{id}/remove(id=${item.id()})}" style="margin:0;">
+            <button class="btn btn-danger btn-sm" type="submit">Remove</button>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap;gap:12px;">
+      <form method="post" th:action="@{/cart/clear}" style="margin:0;">
+        <button class="btn btn-outline" type="submit">Clear Cart</button>
+      </form>
+      <div class="cart-total">
+        <strong style="font-size:1.25rem;" th:text="|Total: ${ui.money(cart.total())}|"></strong>
+        <a class="btn btn-primary" th:href="@{/checkout}">Proceed to Checkout</a>
+      </div>
+    </div>
+  </th:block>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+<div th:replace="~{fragments :: chatWidget}"></div>
+</body>
+</html>

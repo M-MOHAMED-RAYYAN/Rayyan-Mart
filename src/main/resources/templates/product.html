@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head(${product.name()} + ' - RayyanMart')}"></head>
+<body>
+<header th:replace="~{fragments :: navbar}"></header>
+
+<main class="container">
+  <div th:replace="~{fragments :: banner}"></div>
+
+  <div class="product-detail">
+    <div class="detail-img">
+      <img th:src="${ui.image(product.imageUrl())}" th:alt="${product.name()}">
+    </div>
+    <div class="detail-info">
+      <span class="category-chip" th:if="${product.category() != null}" th:text="${product.category()}"></span>
+      <h1 th:text="${product.name()}"></h1>
+      <p class="price" th:text="${ui.money(product.price())}"></p>
+      <p class="product-meta">
+        <span th:if="${product.ratingCount() != null and product.ratingCount() > 0}"
+              th:utext="|${ui.stars(product.averageRating())}|"></span>
+        <span class="muted" th:if="${product.ratingCount() != null and product.ratingCount() > 0}"
+              th:text="|(${product.ratingCount()} reviews)|"></span>
+        <span class="muted" th:unless="${product.ratingCount() != null and product.ratingCount() > 0}">No reviews yet</span>
+      </p>
+      <p class="desc large" th:text="${product.description()}"></p>
+      <p class="stock" th:classappend="${(product.available() and product.quantity() > 0) ? 'in-stock' : 'out-of-stock'}">
+        <span th:if="${product.available() and product.quantity() > 0}"
+              th:text="|In Stock (${product.quantity()} available)|"></span>
+        <span th:unless="${product.available() and product.quantity() > 0}">Out of Stock</span>
+      </p>
+      <p class="seller" th:if="${product.sellerName() != null}"
+         th:text="|Sold by ${product.sellerName()}|"></p>
+
+      <form method="post" th:action="@{/cart/add}">
+        <input type="hidden" name="productId" th:value="${product.id()}">
+        <input type="hidden" name="quantity" value="1">
+        <button class="btn btn-primary" type="submit"
+                th:disabled="${not (product.available() and product.quantity() > 0)}">Add to Cart</button>
+      </form>
+      <a class="btn btn-outline" th:href="@{/products}">&larr; Back to Products</a>
+    </div>
+  </div>
+
+  <section style="margin-top:36px;">
+    <h2>Ratings &amp; Reviews</h2>
+    <div class="reviews-layout">
+      <div class="rating-summary card" th:if="${product.ratingDistribution() != null}">
+        <div class="big" th:text="|${ui.rating(product.averageRating())}/5|"></div>
+        <div th:utext="${ui.stars(product.averageRating())}"></div>
+        <p class="muted" th:text="${product.ratingCount() == null ? '0 reviews' : product.ratingCount() + (product.ratingCount() == 1 ? ' review' : ' reviews')}"></p>
+        <div class="dist-rows">
+          <div class="dist-row" th:each="d : ${dist}"
+               th:with="pct=${distMax > 0 ? (d.count() == null ? 0 : d.count() * 100 / distMax) : 0}">
+            <span th:text="${d.rating()}"></span>
+            <span class="bar"><span th:style="${'width:' + pct + '%'}"></span></span>
+            <span th:text="${d.count()}"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="reviews-column">
+        <div class="review-form card">
+          <h3 style="margin-top:0;" th:text="${myReview != null ? 'Edit your review' : 'Write a Review'}"></h3>
+          <p class="empty" th:if="${navUser == null}">
+            Please <a th:href="@{/login}">log in</a> to write a review.
+          </p>
+          <form th:if="${navUser != null}" method="post"
+                th:action="@{/products/{id}/reviews(id=${product.id()})}">
+            <input type="hidden" name="reviewId" th:if="${myReview != null}" th:value="${myReview.id()}">
+            <div class="star-input">
+              <th:block th:each="s : ${ {5,4,3,2,1} }">
+                <input type="radio" name="rating" th:id="${'star' + s}" th:value="${s}"
+                       th:checked="${myReview != null and myReview.rating() == s}" required>
+                <label th:for="${'star' + s}">&#9733;</label>
+              </th:block>
+            </div>
+            <textarea name="comment" rows="4" placeholder="Share your thoughts..."
+                      th:text="${myReview != null ? myReview.comment() : ''}"></textarea>
+            <div class="toolbar">
+              <button type="submit" class="btn btn-primary btn-sm"
+                      th:text="${myReview != null ? 'Save Changes' : 'Submit Review'}"></button>
+              <form th:if="${myReview != null}" method="post"
+                    th:action="@{/reviews/{id}/delete(id=${myReview.id()})}" style="display:inline;margin:0;">
+                <input type="hidden" name="productId" th:value="${product.id()}">
+                <button type="submit" class="btn btn-danger btn-sm">Delete Review</button>
+              </form>
+            </div>
+          </form>
+        </div>
+
+        <div class="review-grid">
+          <p class="empty" th:if="${#lists.isEmpty(reviews)}">
+            No reviews yet. Be the first to review this product!
+          </p>
+          <div class="review-card" th:each="r : ${reviews}">
+            <div class="review-head">
+              <span class="who">
+                <span th:text="${r.userName()}"></span>
+                <span class="muted" th:if="${navUser != null and navUser.id() == r.userId()}">(you)</span>
+              </span>
+              <span class="review-date" th:text="${ui.date(r.updatedAt() != null ? r.updatedAt() : r.createdAt())}"></span>
+            </div>
+            <div th:utext="${ui.stars(r.rating())}"></div>
+            <p class="review-comment" th:if="${r.comment() != null and !r.comment().isBlank()}"
+               th:text="${r.comment()}"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+<div th:replace="~{fragments :: chatWidget}"></div>
+</body>
+</html>

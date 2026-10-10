@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Products - RayyanMart')}"></head>
+<body>
+<header th:replace="~{fragments :: navbar}"></header>
+
+<main class="container">
+  <div th:replace="~{fragments :: banner}"></div>
+
+  <h1 style="margin:24px 0 0;">Products</h1>
+
+  <section class="filter-bar">
+    <form method="get" th:action="@{/products}" style="display:contents">
+      <div class="form-group">
+        <label for="search">Search</label>
+        <input type="text" id="search" name="search" th:value="${search}" placeholder="Search products...">
+      </div>
+      <div class="form-group">
+        <label for="category">Category</label>
+        <select id="category" name="category">
+          <option value="">All Categories</option>
+          <option th:each="c : ${categories}" th:value="${c}" th:text="${c}"
+                  th:selected="${category == c}"></option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="minPrice">Min Price</label>
+        <input type="number" id="minPrice" name="minPrice" min="0" step="0.01" th:value="${minPrice}" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label for="maxPrice">Max Price</label>
+        <input type="number" id="maxPrice" name="maxPrice" min="0" step="0.01" th:value="${maxPrice}" placeholder="No limit">
+      </div>
+      <div class="form-group">
+        <label for="available">Availability</label>
+        <select id="available" name="available">
+          <option value="">All</option>
+          <option value="true" th:selected="${available == 'true'}">In Stock</option>
+          <option value="false" th:selected="${available == 'false'}">Out of Stock</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="sort">Sort By</label>
+        <select id="sort" name="sort">
+          <option value="name" th:selected="${sort == null or sort == 'name'}">Name (A-Z)</option>
+          <option value="price_asc" th:selected="${sort == 'price_asc'}">Price: Low to High</option>
+          <option value="price_desc" th:selected="${sort == 'price_desc'}">Price: High to Low</option>
+          <option value="newest" th:selected="${sort == 'newest'}">Newest</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" type="submit">Apply</button>
+      <a class="btn btn-outline" th:href="@{/products}">Reset</a>
+    </form>
+  </section>
+
+  <p class="filter-status" th:text="${#lists.isEmpty(products) ? 'No products found.' : #strings.replace(products.size() + ' products found', '1 products', '1 product')}"></p>
+
+  <div class="product-grid">
+    <div class="card product-card" th:each="product : ${products}">
+      <div class="product-img">
+        <img th:src="${ui.image(product.imageUrl())}" th:alt="${product.name()}">
+      </div>
+      <h3 th:text="${product.name()}"></h3>
+      <span class="category-chip" th:if="${product.category() != null}" th:text="${product.category()}"></span>
+      <p class="desc" th:text="${ui.desc(product.description())}"></p>
+      <p class="product-meta">
+        <span th:if="${product.ratingCount() != null and product.ratingCount() > 0}"
+              th:utext="|${ui.stars(product.averageRating())}|"></span>
+        <span class="muted" th:if="${product.ratingCount() != null and product.ratingCount() > 0}"
+              th:text="|(${product.ratingCount()})|"></span>
+      </p>
+      <p class="price" th:text="${ui.money(product.price())}"></p>
+      <p class="stock" th:classappend="${(product.available() and product.quantity() > 0) ? 'in-stock' : 'out-of-stock'}">
+        <span th:if="${product.available() and product.quantity() > 0}"
+              th:text="|In Stock (${product.quantity()})|"></span>
+        <span th:unless="${product.available() and product.quantity() > 0}">Out of Stock</span>
+      </p>
+      <p class="actions">
+        <a class="btn btn-outline btn-sm" th:href="@{/products/{id}(id=${product.id()})}">View</a>
+        <form method="post" th:action="@{/cart/add}" style="display:inline;margin:0;">
+          <input type="hidden" name="productId" th:value="${product.id()}">
+          <input type="hidden" name="quantity" value="1">
+          <button class="btn btn-primary btn-sm" type="submit"
+                  th:disabled="${not (product.available() and product.quantity() > 0)}">Add to Cart</button>
+        </form>
+      </p>
+    </div>
+  </div>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+<div th:replace="~{fragments :: chatWidget}"></div>
+</body>
+</html>

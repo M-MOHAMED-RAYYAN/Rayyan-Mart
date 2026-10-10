@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Checkout - RayyanMart')}"></head>
+<body>
+<header th:replace="~{fragments :: navbar}"></header>
+
+<main class="container" style="max-width:760px;">
+  <div th:replace="~{fragments :: banner}"></div>
+
+  <h1 style="margin:24px 0 0;">Checkout</h1>
+
+  <p class="empty" th:if="${#lists.isEmpty(cart.items())}">
+    Your cart is empty. <a th:href="@{/products}">Continue shopping</a>.
+  </p>
+
+  <th:block th:if="${!#lists.isEmpty(cart.items())}">
+    <div class="card" style="padding:24px;">
+      <h2 style="margin-top:0;">Order Summary</h2>
+      <div class="checkout-item" th:each="item : ${cart.items()}">
+        <div class="cart-product">
+          <img th:src="${ui.image(item.imageUrl())}" th:alt="${item.productName()}">
+          <div>
+            <p th:text="${item.productName()}" style="margin:0;"></p>
+            <p class="muted" style="margin:4px 0 0;"
+               th:text="|${ui.money(item.price())} &times; ${item.quantity()}|"></p>
+          </div>
+        </div>
+        <strong th:text="${ui.money(item.subtotal())}"></strong>
+      </div>
+      <hr>
+      <div class="checkout-total">
+        <strong th:text="|Total: ${ui.money(cart.total())}|"></strong>
+      </div>
+      <form method="post" th:action="@{/checkout/place}">
+        <div style="margin:18px 0 0;">
+          <h3 style="margin:0 0 8px;">Payment Method</h3>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="radio" name="paymentMethod" value="CASH_ON_DELIVERY" checked>
+            <span>Cash on Delivery (COD) — pay in cash when your order arrives</span>
+          </label>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:12px;" type="submit">Place Order</button>
+      </form>
+      <p class="confirmation muted" style="margin:10px 0 0;">
+        By placing this order you confirm the items above. No payment is taken online —
+        you pay Cash on Delivery when the order is delivered. Orders are reviewed by the seller.
+      </p>
+    </div>
+  </th:block>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+<div th:replace="~{fragments :: chatWidget}"></div>
+</body>
+</html>
