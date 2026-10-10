@@ -1,0 +1,12 @@
+target/
+.idea/
+.vscode/
+*.class
+*.log
+.env
+.mvn/wrapper/*.jar
+.DS_Store
+*.iml
+
+# Local tooling / deployment binaries (not part of the project source)
+cloudflared.exe
