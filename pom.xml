@@ -91,6 +91,7 @@
     </dependencies>
 
     <build>
+        <finalName>online-shopping-system</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>

@@ -12,7 +12,7 @@ server or MySQL). Nothing here changes the project — it is operational guidanc
 flowchart LR
     U[Client browser] --> LB[Reverse proxy / TLS (optional)]
     LB --> T[Apache Tomcat 9.0.x]
-    T --> APP[online-shopping-system-1.0.0.war]
+    T --> APP[online-shopping-system.war]
     APP --> H2[H2 TCP server :9092<br>file or MySQL]
 ```
 
@@ -33,7 +33,7 @@ flowchart LR
 ```bash
 cd C:\Rayyan Mart\online-shopping-system
 mvn clean package
-# -> target\online-shopping-system-1.0.0.war
+# -> target\online-shopping-system.war
 ```
 
 Run the test suite first (`mvn test`) — see TEST_RESULTS.md (99/99 green).
@@ -103,7 +103,7 @@ Windows (Tomcat service): set the variables in the service's environment or via
 ## 7. Deploy WAR to Tomcat 9
 
 1. Stop Tomcat.
-2. Copy `target\online-shopping-system-1.0.0.war` into `<tomcat>/webapps/`
+2. Copy `target\online-shopping-system.war` into `<tomcat>/webapps/`
    (optionally rename to `ROOT.war` to serve at `/`).
 3. Ensure env vars are set in the Tomcat process (see §5).
 4. Start Tomcat. Observe `<tomcat>/logs/catalina.<date>.log` for

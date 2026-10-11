@@ -1,0 +1,46 @@
+# RayyanMart — Render Blueprint (deploy from GitHub -> Blueprint -> New Blueprint)
+#
+# A single web service: Docker build (Tomcat 9 + WAR), bind on PORT, connect to
+# your own external MySQL 8 OR the bundled H2 file DB on a persistent disk.
+#
+# IMPORTANT:
+# - Set real database credentials via the Render dashboard before first deploy
+#   (values below are placeholders only; nothing secret is committed here).
+# - If you prefer H2 + a persistent disk, uncomment the `disk:` block and set
+#   DB_URL to  jdbc:h2:file:/var/lib/rayyanmart/db/rayyanmartdb;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+
+services:
+  - type: web
+    name: rayyan-mart
+    runtime: docker
+    repo: https://github.com/M-MOHAMED-RAYYAN/Rayyan-Mart.git
+    branch: main
+    dockerfilePath: ./Dockerfile
+    plan: free          # or starter/standard for throttled/always-on
+    autoDeploy: true
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: CHAT_ENABLED
+        value: "true"
+      - key: CHAT_PROVIDER
+        value: mock
+      - key: DB_URL
+        sync: false     # set in dashboard: jdbc:mysql://... (or H2 file URL)
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_DRIVER
+        sync: false     # com.mysql.cj.jdbc.Driver for MySQL
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false     # optional: only when CHAT_PROVIDER=gemini
+
+# Uncomment to persist the H2 file database across deploys/restarts:
+#  disk:
+#    name: rayyanmart-db
+#    mountPath: /var/lib/rayyanmart
+#    sizeGB: 1

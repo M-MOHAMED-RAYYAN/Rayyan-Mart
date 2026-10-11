@@ -10,3 +10,9 @@ target/
 
 # Local tooling / deployment binaries (not part of the project source)
 cloudflared.exe
+
+# Local H2 database runtime files (never commit the live DB)
+database/*.mv.db
+database/*.lock.db
+database/*.trace.db
+database/db/

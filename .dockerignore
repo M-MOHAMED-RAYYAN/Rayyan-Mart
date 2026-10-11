@@ -1,0 +1,12 @@
+.git
+.idea
+.vscode
+target
+database/*.mv.db
+database/*.lock.db
+database/db
+*.log
+.env
+cloudflared.exe
+*.iml
+.DS_Store
